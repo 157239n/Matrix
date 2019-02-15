@@ -22,6 +22,19 @@ public class MatrixTest {
     };
     private Matrix matrix2 = new Matrix(matrix2Values);
 
+    private Matrix matrix3 = new Matrix(new float[][]{
+            new float[]{0, 0, 0, 0},
+            new float[]{0, 0, 0, 0},
+            new float[]{0, 0, 0, 0},
+            new float[]{0, 0, 0, 0}
+    });
+
+    private Matrix matrix4 = new Matrix(new float[][]{
+            new float[]{1, 0, 0, 0},
+            new float[]{0, 1, 0, 0},
+            new float[]{0, 0, 1, 0},
+            new float[]{0, 0, 0, 1}
+    });
 
     @Test
     public void constructor() {
@@ -70,6 +83,74 @@ public class MatrixTest {
         println();
         println("sigmoid(matrix): ");
         matrix1.sigmoid().print();
+    }
+
+    @Test
+    public void addRowToRow() {
+        Matrix result = matrix1.addRowToRow(0, -1, 2);
+        Matrix correctResult = new Matrix(new float[][]{
+                new float[]{1, 2, 3, 4},
+                new float[]{5, 6, 7, 8},
+                new float[]{8, 8, 8, 8}
+        });
+        result.print();
+        assertEquals(result, correctResult);
+    }
+
+    @Test
+    public void reducedRowEchelonForm() {
+        Matrix result = matrix1.reducedRowEchelonForm();
+        Matrix correctResult = new Matrix(new float[][]{
+                new float[]{1, 0, -1, -2},
+                new float[]{0, 1, 2, 3},
+                new float[]{0, 0, 0, 0}
+        });
+        assertEquals(result, correctResult);
+    }
+
+    @Test
+    public void rank() {
+        assertEquals(matrix1.rank(), 2);
+        assertEquals(new Matrix(new float[][]{
+                new float[]{0, 0, 0},
+                new float[]{0, 0, 0}
+        }).rank(), 0);
+        assertEquals(new Matrix(new float[][]{
+                new float[]{1, 2, 3},
+                new float[]{2, 3, 4}
+        }).rank(), 2);
+    }
+
+    @Test
+    public void nullSpace() {
+        matrix1.nullSpace().print();
+        System.out.println();
+        assertEquals(matrix3.nullSpace(), new Matrix(new float[][]{
+                new float[]{1, 0, 0, 0},
+                new float[]{0, 1, 0, 0},
+                new float[]{0, 0, 1, 0},
+                new float[]{0, 0, 0, 1},
+        }));
+        assertEquals(matrix4.nullSpace(), new Matrix(4, 0));
+    }
+
+    @Test
+    public void randomTest() {/*
+        new Matrix(new float[][]{
+                new float[]{},
+                new float[]{},
+                new float[]{}
+        });/**/
+        Matrix A = new Matrix(new float[][]{
+                new float[]{2, 4, -4, -6},
+                new float[]{-4, 1, 4, 27},
+                new float[]{-2, -2, 3, 9},
+                new float[]{4, 1, 0, -9},
+        });
+        A.reducedRowEchelonForm().print();
+        System.out.println();
+        //A.nonNullInverse().dot(new Matrix(new float[][] {new float[] {26, -22, -19, 14}}).transpose()).print();
+        A.nullSpace().print();/**/
     }
 
     private void println() {
