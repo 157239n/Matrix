@@ -85,6 +85,7 @@ public class AccurateMatrixTest {
         matrix1.sigmoid().print();
     }
 
+    /*
     @Test
     public void addRowToRow() {
         AccurateMatrix result = matrix1.addRowToRow(0, -1, 2);
@@ -95,7 +96,7 @@ public class AccurateMatrixTest {
         });
         result.print();
         assertEquals(result, correctResult);
-    }
+    }/**/
 
     @Test
     public void reducedRowEchelonForm() {
@@ -166,5 +167,23 @@ public class AccurateMatrixTest {
 
     private void println(@Nonnull String string) {
         System.out.println(string);
+    }
+
+    @Test
+    public void inverse() {
+        AccurateMatrix matrix = new AccurateMatrix(
+                new double[][]{
+                        new double[]{1, 0, 0, 0},
+                        new double[]{0, -1, -1, 0},
+                        new double[]{-1, 0, 0, 1},
+                        new double[]{-1, 0, -100, 1},
+                }
+        );
+        assertEquals(matrix.nonNullInverse(), new AccurateMatrix(new double[][]{
+                new double[]{1, 0, 0, 0},
+                new double[]{0, -1, -0.01, 0.01},
+                new double[]{0, 0, 0.01, -0.01},
+                new double[]{1, 0, 1, 0}
+        }));
     }
 }

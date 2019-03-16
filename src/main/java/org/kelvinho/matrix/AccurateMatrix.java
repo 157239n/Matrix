@@ -55,51 +55,65 @@ public class AccurateMatrix extends Matrix implements Cloneable { // immutable
         values[i][j] = value;
     }
 
-    AccurateMatrix addRowToRow(int rowWithValuesToAdd, double multiple, int rowToAddTo) { // rowToAddTo += rowWithValuesToAdd * multiple
-        AccurateMatrix answer = (AccurateMatrix) clone();
+    private void addRowToRow(int rowWithValuesToAdd, double multiple, int rowToAddTo) { // rowToAddTo += rowWithValuesToAdd * multiple
         for (int i = 0; i < columns; i++) {
-            answer.internalSet(rowToAddTo, i, get(rowToAddTo, i) + get(rowWithValuesToAdd, i) * multiple);
+            internalSet(rowToAddTo, i, get(rowToAddTo, i) + get(rowWithValuesToAdd, i) * multiple);
         }
-        return answer;
     }
 
-    private AccurateMatrix changeRow(int rowToChange, @Nonnull Function<Double, Double> function) {
-        AccurateMatrix answer = (AccurateMatrix) clone();
+    private void changeRow(int rowToChange, @Nonnull Function<Double, Double> function) {
         if (rowToChange < 0 || rowToChange >= rows) {
             throw new IndexOutOfBoundsException();
         }
         for (int i = 0; i < columns; i++) {
-            answer.internalSet(rowToChange, i, function.apply(get(rowToChange, i)));
+            internalSet(rowToChange, i, function.apply(get(rowToChange, i)));
         }
-        return answer;
+    }
+
+    private void switchRow(int rowA, int rowB) {
+        for (int column = 0; column < columns; column++) {
+            double valueAtRowA = get(rowA, column);
+            double valueAtRowB = get(rowB, column);
+            internalSet(rowA, column, valueAtRowB);
+            internalSet(rowB, column, valueAtRowA);
+        }
     }
 
     public AccurateMatrix reducedRowEchelonForm() {
+        if (columns == 0 || rows == 0) {
+            return this;
+        }
         AccurateMatrix answer = (AccurateMatrix) clone();
         int pivotLocation = 0;
-        // going forwards
-        for (int i = 0; i < rows; i++) {
-            // find in which column is the pivot, save that into pivotLocation
-            boolean pivotChanged = false;
-            for (int w = pivotLocation; w < columns; w++) {
-                if (!Environment.doubleLooselyEquals(answer.get(i, w), 0.0)) {
-                    pivotLocation = w;
-                    pivotChanged = true;
-                    break;
+        {
+            int row = 0;
+            do {
+                int nonZeroRowFound = -1;
+                for (int i = row; i < rows; i++) {
+                    if (!Environment.doubleLooselyEquals(answer.get(i, pivotLocation), 0.0)) {
+                        // found it
+                        nonZeroRowFound = i;
+                        break;
+                    }
                 }
-            }
-            if (pivotChanged) {
-                double factor = 1.0 / answer.get(i, pivotLocation);
-                answer = answer.changeRow(i, x -> x * factor);
-                // start eliminating rows below it
-                for (int w = i + 1; w < rows; w++) {
-                    answer = answer.addRowToRow(i, -answer.get(w, pivotLocation), w);
+                if (nonZeroRowFound >= 0) {
+                    if (nonZeroRowFound != row) {
+                        answer.switchRow(nonZeroRowFound, row);
+                    }
+                    // frenzy elimination
+                    double factor = 1.0 / answer.get(row, pivotLocation);
+                    answer.changeRow(row, x -> x * factor);
+                    // start eliminating rows below it
+                    for (int rowBelow = row + 1; rowBelow < rows; rowBelow++) {
+                        answer.addRowToRow(row, -answer.get(rowBelow, pivotLocation), rowBelow);
+                    }
+                    row++;
                 }
-            } else {// this means that all rows below are zeros
-                break;
-            }
+                pivotLocation++;
+            } while (pivotLocation < columns);
         }
-        // going backwards
+
+        // going backward
         for (int i = rows - 1; i >= 0; i--) {
             pivotLocation = -1;
             for (int w = 0; w < columns; w++) {
@@ -111,7 +125,7 @@ public class AccurateMatrix extends Matrix implements Cloneable { // immutable
             if (pivotLocation != -1) {
                 // start eliminating everything above
                 for (int w = i - 1; w >= 0; w--) {
-                    answer = answer.addRowToRow(i, -answer.get(w, pivotLocation), w);
+                    answer.addRowToRow(i, -answer.get(w, pivotLocation), w);
                 }
             }
         }
@@ -176,14 +190,17 @@ public class AccurateMatrix extends Matrix implements Cloneable { // immutable
     @Nullable
     public AccurateMatrix inverse() {
         if (rows != columns) {
-            throw new MatrixNotInvertibleException();
+            throw new MatrixNotInvertibleException("Not a square matrix");
         }
+        // creating the matrix with 2 sides, on the left is the original matrix, on the right is the identity matrix
         AccurateMatrix answer = new AccurateMatrix(rows, rows * 2);
+        // copying the first part (original matrix) over
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
                 answer.internalSet(i, j, get(i, j));
             }
         }
+        // copying the second part (identity matrix) over
         for (int i = 0; i < rows; i++) {
             answer.internalSet(i, columns + i, 1);
         }
