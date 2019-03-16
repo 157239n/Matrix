@@ -1,6 +1,6 @@
 package org.kelvinho.matrix;
 
-public class MatrixNotInvertibleException extends RuntimeException {
+class MatrixNotInvertibleException extends RuntimeException {
     MatrixNotInvertibleException() {
         super();
     }

@@ -9,6 +9,6 @@ class MismatchDimensionException extends RuntimeException {
 
     @Nonnull
     private static String matrixDimension(@Nonnull Matrix matrix) {
-        return "(" + String.valueOf(matrix.numberOfRows()) + ", " + String.valueOf(matrix.numberOfColumns()) + ")";
+        return "(" + matrix.numberOfRows() + ", " + matrix.numberOfColumns() + ")";
     }
 }

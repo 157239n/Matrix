@@ -17,6 +17,19 @@ class Environment {
         return newValues;
     }
 
+    static double[][] clone(@Nonnull double[][] values) {
+        if (values.length == 0) {
+            throw new IllegalArgumentException("Input values mst have at least 1 row");
+        }
+        int rows = values.length;
+        int columns = values[0].length;
+        double[][] newValues = new double[rows][columns];
+        for (int i = 0; i < rows; i++) {
+            System.arraycopy(values[i], 0, newValues[i], 0, columns);
+        }
+        return newValues;
+    }
+
     private static float[][] convert(@Nonnull int[][] values) {
         if (values.length == 0) {
             throw new IllegalArgumentException("Input values mst have at least 1 row");
@@ -36,21 +49,26 @@ class Environment {
         return convert(values);
     }
 
-    static boolean equals(float a, float b) {
+    @SuppressWarnings("SameParameterValue")
+    static boolean floatEquals(float a, float b) {
         return Math.abs(a - b) < 0.000001;
     }
 
-    static boolean equals(double a, double b) {
+    static boolean floatLooselyEquals(float a, float b) {
+        return Math.abs(a - b) < 0.0001;
+    }
+
+    static boolean doubleEquals(double a, double b) {
         return Math.abs(a - b) < 0.000000000000001;
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    static boolean isZero(float a) {
-        return equals(a, 0.0f);
+    @SuppressWarnings({"SameParameterValue", "BooleanMethodIsAlwaysInverted"})
+    static boolean doubleLooselyEquals(double a, double b) {
+        return Math.abs(a - b) < 0.000000000001;
     }
 
-    static boolean isStrictZero(float a) {
-        return Math.abs(a) < 0.001;
+    @Deprecated static boolean isZero(float a) {
+        return floatEquals(a, 0.0f);
     }
 
     @SuppressWarnings("SameParameterValue")
