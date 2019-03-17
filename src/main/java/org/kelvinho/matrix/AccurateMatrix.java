@@ -18,7 +18,7 @@ public class AccurateMatrix extends Matrix implements Cloneable { // immutable
         values = new double[rows][columns];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
-                internalSet(i, j, generator.apply(i, j));
+                mutableSet(i, j, generator.apply(i, j));
             }
         }
     }
@@ -51,13 +51,13 @@ public class AccurateMatrix extends Matrix implements Cloneable { // immutable
 
     @Override
     @SuppressWarnings("SameParameterValue")
-    protected void internalSet(int i, int j, double value) {
+    public void mutableSet(int i, int j, double value) {
         values[i][j] = value;
     }
 
     private void addRowToRow(int rowWithValuesToAdd, double multiple, int rowToAddTo) { // rowToAddTo += rowWithValuesToAdd * multiple
         for (int i = 0; i < columns; i++) {
-            internalSet(rowToAddTo, i, get(rowToAddTo, i) + get(rowWithValuesToAdd, i) * multiple);
+            mutableSet(rowToAddTo, i, get(rowToAddTo, i) + get(rowWithValuesToAdd, i) * multiple);
         }
     }
 
@@ -66,7 +66,7 @@ public class AccurateMatrix extends Matrix implements Cloneable { // immutable
             throw new IndexOutOfBoundsException();
         }
         for (int i = 0; i < columns; i++) {
-            internalSet(rowToChange, i, function.apply(get(rowToChange, i)));
+            mutableSet(rowToChange, i, function.apply(get(rowToChange, i)));
         }
     }
 
@@ -74,8 +74,8 @@ public class AccurateMatrix extends Matrix implements Cloneable { // immutable
         for (int column = 0; column < columns; column++) {
             double valueAtRowA = get(rowA, column);
             double valueAtRowB = get(rowB, column);
-            internalSet(rowA, column, valueAtRowB);
-            internalSet(rowB, column, valueAtRowA);
+            mutableSet(rowA, column, valueAtRowB);
+            mutableSet(rowB, column, valueAtRowA);
         }
     }
 
@@ -177,9 +177,9 @@ public class AccurateMatrix extends Matrix implements Cloneable { // immutable
                 endDependency = endDependency == -1 ? columns : endDependency;
                 for (int w = initialDependency; w < endDependency; w++) { // w is the index of a single dependent vector
                     for (int k = 0; k <= i; k++) {// looping through every pivot to get the values
-                        nullSpace.internalSet(k, currentColumnOfNullSpace, -RREF.get(k, w));
+                        nullSpace.mutableSet(k, currentColumnOfNullSpace, -RREF.get(k, w));
                     }
-                    nullSpace.internalSet(w, currentColumnOfNullSpace, 1);
+                    nullSpace.mutableSet(w, currentColumnOfNullSpace, 1);
                     currentColumnOfNullSpace++;
                 }
             }
@@ -197,12 +197,12 @@ public class AccurateMatrix extends Matrix implements Cloneable { // immutable
         // copying the first part (original matrix) over
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
-                answer.internalSet(i, j, get(i, j));
+                answer.mutableSet(i, j, get(i, j));
             }
         }
         // copying the second part (identity matrix) over
         for (int i = 0; i < rows; i++) {
-            answer.internalSet(i, columns + i, 1);
+            answer.mutableSet(i, columns + i, 1);
         }
         answer = answer.reducedRowEchelonForm();
         for (int w = 0; w < rows; w++) {
@@ -210,7 +210,7 @@ public class AccurateMatrix extends Matrix implements Cloneable { // immutable
                 AccurateMatrix croppedAnswer = new AccurateMatrix(rows, columns);
                 for (int i = 0; i < rows; i++) {
                     for (int j = 0; j < columns; j++) {
-                        croppedAnswer.internalSet(i, j, answer.get(i, j + columns));
+                        croppedAnswer.mutableSet(i, j, answer.get(i, j + columns));
                     }
                 }
                 return croppedAnswer;

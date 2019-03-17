@@ -13,7 +13,7 @@ public class NormalMatrix extends Matrix implements Cloneable {
         values = new float[rows][columns];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
-                internalSet(i, j, generator.apply(i, j));
+                mutableSet(i, j, generator.apply(i, j));
             }
         }
     }
@@ -51,7 +51,7 @@ public class NormalMatrix extends Matrix implements Cloneable {
     }
 
     @Override
-    protected void internalSet(int i, int j, double value) {
+    public void mutableSet(int i, int j, double value) {
         values[i][j] = (float) value;
     }
 

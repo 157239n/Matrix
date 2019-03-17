@@ -17,12 +17,12 @@ public abstract class Matrix {
 
     protected abstract Matrix template(int rows, int columns);
 
-    protected abstract void internalSet(int i, int j, double value);
+    public abstract void mutableSet(int i, int j, double value);
 
     // near fundamentals, but can generalize
     public Matrix set(int i, int j, double value) {
         Matrix answer = (Matrix) clone();
-        answer.internalSet(i, j, value);
+        answer.mutableSet(i, j, value);
         return answer;
     }
 
@@ -41,7 +41,7 @@ public abstract class Matrix {
         transposedMatrix = template(columns, rows);
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
-                transposedMatrix.internalSet(j, i, get(i, j));
+                transposedMatrix.mutableSet(j, i, get(i, j));
             }
         }
         return transpose();
@@ -58,7 +58,7 @@ public abstract class Matrix {
                 for (int k = 0; k < columns; k++) {
                     sum += get(i, k) * matrix.get(k, j);
                 }
-                answer.internalSet(i, j, sum);
+                answer.mutableSet(i, j, sum);
             }
         }
         return answer;
@@ -69,7 +69,7 @@ public abstract class Matrix {
         Matrix answer = template(rows, columns);
         for (int i = 0; i < answer.rows; i++) {
             for (int j = 0; j < answer.columns; j++) {
-                answer.internalSet(i, j, get(i, j));
+                answer.mutableSet(i, j, get(i, j));
             }
         }
         return answer;
@@ -114,7 +114,7 @@ public abstract class Matrix {
         Matrix answer = template(rows, columns);
         for (int i = 0; i < answer.rows; i++) {
             for (int j = 0; j < answer.columns; j++) {
-                answer.internalSet(i, j, function.apply(get(i, j)));
+                answer.mutableSet(i, j, function.apply(get(i, j)));
             }
         }
         return answer;
@@ -127,7 +127,7 @@ public abstract class Matrix {
         Matrix answer = template(rows, columns);
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
-                answer.internalSet(i, j, function.apply(get(i, j), matrix.get(i, j)));
+                answer.mutableSet(i, j, function.apply(get(i, j), matrix.get(i, j)));
             }
         }
         return answer;
